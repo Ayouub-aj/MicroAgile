@@ -1,4 +1,5 @@
 # 📋 MicroAgile — DevTrack Laravel SCRUM Board
+
 **Sprint:** 04/05/2026 → 08/05/2026 | **Deadline:** Vendredi 08/05 – 16:00 | **Mode:** Binôme
 
 ---
@@ -38,7 +39,9 @@ php artisan sail:install
 ### Step 4 — Files to create / configure
 
 **`.env`** — Edit the generated `.env`:
-```env
+
+```yaml
+env
 APP_NAME=MicroAgile
 APP_URL=http://localhost
 
@@ -51,7 +54,8 @@ DB_PASSWORD=password
 ```
 
 **`.gitignore`** — Verify these lines exist (add if missing):
-```
+
+```yaml
 /vendor/
 /node_modules/
 .env
@@ -62,6 +66,7 @@ DB_PASSWORD=password
 ```
 
 **`compose.yaml`** — Created automatically by Sail. Verify it contains these services:
+
 ```yaml
 services:
     laravel.test:
@@ -166,6 +171,7 @@ git push origin feature/api
 ---
 
 ## 🏃 Sprint 1 — Infrastructure & Setup
+
 **Objectif:** Docker up, Laravel initialized, migrations ready, debugging tools installed, Tailwind working
 **Durée:** Jour 1 — Lundi 04/05
 
@@ -188,6 +194,7 @@ git push origin feature/api
 | [ ] | T-15 | Install Laravel Telescope | `DEBUG` | High | 0.5h | **Action:**<br>- `sail composer require laravel/telescope --dev`<br>- `sail artisan telescope:install`<br>- `sail artisan migrate`<br>- Verify `http://localhost/telescope` is accessible<br>- Verify **Requests** tab shows incoming requests |
 
 **Sprint 1 — Definition of Done:**
+
 - [ ] `sail up -d` starts all services without error
 - [ ] `http://localhost` shows Laravel + Tailwind working
 - [ ] `http://localhost:8081` shows phpMyAdmin
@@ -199,6 +206,7 @@ git push origin feature/api
 ---
 
 ## 🏃 Sprint 2 — Authentication (US1)
+
 **Objectif:** Registration, Login and Logout fully functional with main layout
 **Durée:** Jour 2 matin — Mardi 05/05
 **Branch:** `feature/auth`
@@ -211,6 +219,7 @@ git push origin feature/api
 | [ ] | T-19 | Protect all routes under `auth` middleware | `AUTH` | High | 0.5h | **Files to Edit:**<br>- `routes/web.php`: wrap all project + task routes in `Route::middleware('auth')->group(function () { ... })`<br>- Redirect to `/login` is default behavior with `auth` middleware<br>- Test: direct access to `/dashboard` without login → must redirect to `/login` |
 
 **Sprint 2 — Definition of Done:**
+
 - [ ] Registration creates a new user and redirects to `/dashboard`
 - [ ] Login with seeded credentials works
 - [ ] Logout redirects to `/` or `/login`
@@ -221,6 +230,7 @@ git push origin feature/api
 ---
 
 ## 🏃 Sprint 3 — Projects CRUD + Members (US2, US3, US4, US5, US6, US7)
+
 **Objectif:** Full project management — dashboard, create, edit, archive, restore, add/remove members
 **Durée:** Jour 2 après-midi + Jour 3 matin — Mardi 05/05 → Mercredi 06/05
 **Branch:** `feature/projects`
@@ -239,6 +249,7 @@ git push origin feature/api
 | [ ] | T-29 | `projects/show.blade.php` — Project detail page | `PROJ` | High | 1.5h | **Files to Create:**<br>- Load project with all relations: `Project::with(['members', 'tasks.assignedUser'])->findOrFail($id)`<br>- Display: title, description, deadline, member list with roles<br>- Task list section: title, status badge, priority badge, assigned developer, urgency indicator<br>- `@can('create', App\Models\Task::class)` → show "Add Task" button (leads only)<br>- **Route:** `GET /projects/{project}` → `projects.show` |
 
 **Sprint 3 — Definition of Done:**
+
 - [ ] Dashboard shows only projects the user is member of (as lead or developer)
 - [ ] Create project → lead is auto-attached with role `lead` in pivot
 - [ ] Edit project (lead only) — 403 for developers
@@ -251,6 +262,7 @@ git push origin feature/api
 ---
 
 ## 🏃 Sprint 4 — Tasks CRUD + Status (US8, US9, US10, US11, US12)
+
 **Objectif:** Full task management — list, create, edit, delete, status change, urgency indicator
 **Durée:** Jour 3 après-midi + Jour 4 matin — Mercredi 06/05 → Jeudi 07/05
 **Branch:** `feature/tasks`
@@ -267,6 +279,7 @@ git push origin feature/api
 | [ ] | T-37 | `US12` — Delete a task | `TASK` | High | 1h | **Files to Edit:**<br>- `TaskController@destroy`:<br>&nbsp;&nbsp;- `$this->authorize('delete', $task)`<br>&nbsp;&nbsp;- `$task->delete()` + redirect with flash message<br>- `tasks/index.blade.php`: delete form with `@method('DELETE')`, `@csrf`, JS confirm dialog<br>&nbsp;&nbsp;- `@can('delete', $task)` wrapping the button<br>- **Route:** `DELETE /tasks/{task}` → `tasks.destroy` |
 
 **Sprint 4 — Definition of Done:**
+
 - [ ] Task list shows all tasks for a project (lead and developer members)
 - [ ] Status badges use `$task->status_label` accessor — no raw enum values in views
 - [ ] Deadline urgency indicator displays correctly (⚠️ urgent, 🔴 overdue)
@@ -280,6 +293,7 @@ git push origin feature/api
 ---
 
 ## 🏃 Sprint 5 — API Endpoint (US13)
+
 **Objectif:** REST API endpoint returning project tasks as JSON via TaskResource
 **Durée:** Jour 4 après-midi — Jeudi 07/05
 **Branch:** `feature/api`
@@ -291,6 +305,7 @@ git push origin feature/api
 | [ ] | T-40 | Verify API JSON output | `API` | High | 0.3h | **Action:**<br>- Open `http://localhost/api/projects/1/tasks` in browser or Postman<br>- Confirm response format:<br>```json<br>{<br>  "data": [<br>    {<br>      "id": 1,<br>      "title": "Setup auth",<br>      "status": "in_progress",<br>      "status_label": "En cours",<br>      "priority": "high",<br>      "deadline": "2026-05-08",<br>      "deadline_status": "urgent",<br>      "assigned_to": "Ali Benali"<br>    }<br>  ]<br>}<br>```<br>- `status_label` must show French label (from accessor), NOT raw value<br>- `deadline_status` must show urgency level (from accessor) |
 
 **Sprint 5 — Definition of Done:**
+
 - [ ] `GET /api/projects/{project}/tasks` returns HTTP 200 with `Content-Type: application/json`
 - [ ] Response includes `status_label` computed from accessor
 - [ ] Response includes `deadline_status` computed from accessor
@@ -300,6 +315,7 @@ git push origin feature/api
 ---
 
 ## 🏃 Sprint 6 — Bonus Features
+
 **Objectif:** Extra features for additional credit
 **Durée:** Jour 4 fin — Jeudi 07/05 (si temps disponible)
 
@@ -312,6 +328,7 @@ git push origin feature/api
 ---
 
 ## 🏃 Sprint 7 — QA, Debugging & Livrables
+
 **Objectif:** Security audit, N+1 fix, Telescope prep, README, commits check
 **Durée:** Jour 5 — Vendredi 08/05
 
@@ -330,6 +347,7 @@ git push origin feature/api
 | [ ] | T-54 | Git audit — commits & branches | `DOC` | High | 0.3h | **Action:**<br>- `git log --oneline` → vérifier ≥ 20 commits répartis entre les 2 membres<br>- Vérifier branches: `feature/auth`, `feature/projects`, `feature/tasks`, `feature/api`<br>- Vérifier PR avec reviews avant merge sur main<br>- Zéro commit direct sur `main`<br>- Exemples de messages corrects: `Add ProjectPolicy with lead/developer checks`, `Implement SoftDeletes on Project model`, `Add status_label accessor to Task model`, `Fix N+1 on project dashboard with eager loading` |
 
 **Sprint 7 — Definition of Done:**
+
 - [ ] All forms have `@csrf` and use Form Request classes
 - [ ] All models have `$fillable` defined
 - [ ] Zero `abort(403)` in controllers — all through `$this->authorize()`
@@ -370,6 +388,7 @@ git push origin feature/api
 ## 🏆 Performance Criteria
 
 ### Architecture Laravel (35%)
+
 | Critère | Statut |
 |---------|--------|
 | `ProjectPolicy` + `TaskPolicy` — `$this->authorize()` dans tous les controllers | ⬜ |
@@ -382,6 +401,7 @@ git push origin feature/api
 | Zéro N+1 vérifié et confirmé avec Debugbar | ⬜ |
 
 ### Fonctionnalités (25%)
+
 | Critère | Statut |
 |---------|--------|
 | CRUD projets complet avec gestion des membres (lead vs developer) | ⬜ |
@@ -390,6 +410,7 @@ git push origin feature/api
 | `GET /api/projects/{project}/tasks` retourne JSON propre avec `TaskResource` | ⬜ |
 
 ### Présentation (20%)
+
 | Critère | Statut |
 |---------|--------|
 | Structure 10 slides respectée avec MCD et MLD | ⬜ |
@@ -398,6 +419,7 @@ git push origin feature/api
 | Règles slides respectées (mots, visuels, numérotation, police) | ⬜ |
 
 ### Collaboration & Process (20%)
+
 | Critère | Statut |
 |---------|--------|
 | ≥ 20 commits répartis entre les 2 membres | ⬜ |
@@ -410,6 +432,7 @@ git push origin feature/api
 ## 🎤 Debugging Session Prep (30 min par binôme)
 
 ### Phase 1 — Telescope (10 min)
+
 | Request à tracer | Préparé |
 |-----------------|---------|
 | `POST /projects` — Créer un projet: payload reçu, insert query, pivot attach | ⬜ |
@@ -417,6 +440,7 @@ git push origin feature/api
 | `PATCH /tasks/{id}/status` — Changement de statut: quel user, quelle tâche, update query | ⬜ |
 
 ### Phase 2 — Bug Hunt (10 min)
+
 | Compétence | Préparé |
 |-----------|---------|
 | Utiliser Debugbar pour compter les queries sur une page et détecter un N+1 | ⬜ |
@@ -424,6 +448,7 @@ git push origin feature/api
 | Corriger le bug identifié par les outils, pas par lecture de code | ⬜ |
 
 ### Phase 3 — Questions individuelles (10 min)
+
 | Membre | Question | Préparé |
 |--------|----------|---------|
 | Membre 1 | "Un developer tente `GET /projects/{id}/edit`. Montre dans Telescope ce qui se passe et explique comment la `ProjectPolicy` bloque cette action." | ⬜ |
