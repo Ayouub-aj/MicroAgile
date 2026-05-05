@@ -12,6 +12,7 @@ return new class extends Migration
             $table->unsignedBigInteger('project_id');
             $table->unsignedBigInteger('user_id');
             $table->enum('role', ['lead', 'developer']);
+            $table->timestamps();
 
             $table->primary(['project_id', 'user_id']);
 
