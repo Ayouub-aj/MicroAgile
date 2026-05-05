@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 
 class TaskController extends Controller
 {
@@ -84,23 +85,16 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
         $task->load(['project', 'project.members']);
         $this->authorize('update', $task);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'user_id' => 'nullable|exists:users,id',
-            'priority' => 'required|in:low,medium,high',
-            'deadline' => 'nullable|date',
-        ]);
+        $task->update($request->validated());
 
-        $task->update($validated);
-
-        return redirect()->route('tasks.show', $task);
-    }
+        return redirect()->route('tasks.show', $task)
+                        ->with('success', 'Tâche mise à jour avec succès');
+}
 
     /**
      * Remove the specified resource from storage.
