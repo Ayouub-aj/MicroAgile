@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreTaskRequest;
 
 class TaskController extends Controller
 {
@@ -25,40 +26,37 @@ class TaskController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Project $project)
     {
-        // Get projects where user is lead
-        $projects = Project::with('members')
-            ->whereHas('members', function ($query) {
-                $query->where('user_id', Auth::id())
-                    ->where('role', 'lead');
-            })
-            ->get();
+        $project->load('members');
+        $this->authorize('create', [Task::class, $project]);
 
-        return view('tasks.create', compact('projects'));
+        // Get only developers from the project
+        $members = $project->members()->where('role', 'developer')->get();
+
+        return view('tasks.create', compact('project', 'members'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request, Project $project)
     {
-        $project = Project::with('members')->findOrFail($request->project_id);
+        $project->load('members');
         $this->authorize('create', [Task::class, $project]);
 
-        $validated = $request->validate([
-            'project_id' => 'required|exists:projects,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'user_id' => 'nullable|exists:users,id',
-            'priority' => 'required|in:low,medium,high',
-            'deadline' => 'nullable|date',
+        $task = Task::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'deadline' => $request->deadline,
+            'priority' => $request->priority,
+            'user_id' => $request->user_id,
+            'project_id' => $project->id,
+            'status' => 'todo', // default status
         ]);
 
-        $task = Task::create($validated);
-
-        return redirect()->route('tasks.show', $task);
-
+        return redirect()->route('tasks.index', $project)
+                        ->with('success', 'Tâche créée avec succès');
     }
 
     /**
