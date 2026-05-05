@@ -80,4 +80,30 @@ class Task extends Model
         return $query->where('status', '!=', 'done')
                      ->where('deadline', '<=', now()->addHours(48));
     }
+
+    /**
+     * Badge color for status
+     */
+    public function getStatusBadgeColorAttribute(): string
+    {
+        return match($this->status) {
+            'todo' => 'secondary',
+            'in_progress' => 'primary',
+            'done' => 'success',
+            default => 'secondary',
+        };
+    }
+
+    /**
+     * Badge color for priority
+     */
+    public function getPriorityBadgeColorAttribute(): string
+    {
+        return match($this->priority) {
+            'low' => 'info',
+            'medium' => 'warning',
+            'high' => 'danger',
+            default => 'secondary',
+        };
+    }
 }

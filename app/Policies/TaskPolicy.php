@@ -88,7 +88,7 @@ class TaskPolicy
         $task->loadMissing('project');
 
         // User is the assigned developer OR is the lead
-        return $task->assigned_to === $user->id
+        return $task->user_id === $user->id
             || $task->project->members()
                 ->where('user_id', $user->id)
                 ->where('role', 'lead')

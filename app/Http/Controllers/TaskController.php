@@ -12,15 +12,14 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Project $project)
     {
-        $tasks = Task::with(['project', 'project.members', 'assignedUser'])
-        ->whereHas('project.members', function ($query) {
-            $query->where('user_id', Auth::id());
-        })
-        ->get();
+        $project->load('members');
+        $this->authorize('view', $project);
 
-    return view('tasks.index', compact('tasks'));
+        $tasks = $project->tasks()->with(['assignedUser', 'project.members'])->get();
+
+        return view('tasks.index', compact('project', 'tasks'));
     }
 
     /**
@@ -51,9 +50,9 @@ class TaskController extends Controller
             'project_id' => 'required|exists:projects,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'assigned_to' => 'nullable|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
             'priority' => 'required|in:low,medium,high',
-            'due_date' => 'nullable|date',
+            'deadline' => 'nullable|date',
         ]);
 
         $task = Task::create($validated);
@@ -95,9 +94,9 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'assigned_to' => 'nullable|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
             'priority' => 'required|in:low,medium,high',
-            'due_date' => 'nullable|date',
+            'deadline' => 'nullable|date',
         ]);
 
         $task->update($validated);
