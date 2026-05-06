@@ -21,6 +21,8 @@ Route::middleware('auth')->group(function () {
     // Project routes
     Route::resource('projects', ProjectController::class);
     Route::patch('projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
+    Route::get('projects-archives', [ProjectController::class, 'archives'])->name('projects.archives');
+    Route::patch('projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
 
     // Task routes (shallow nesting)
     Route::get('projects/{project}/tasks', [TaskController::class, 'index'])->name('tasks.index');

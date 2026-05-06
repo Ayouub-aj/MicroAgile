@@ -1,34 +1,24 @@
 <x-app-layout>
-<div class="container">
+<div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Mes Projets</h1>
-                <div>
-                    @can('create', App\Models\Project::class)
-                        <a href="{{ route('projects.create') }}" class="btn btn-primary">Nouveau Projet</a>
-                    @endcan
-                    <a href="{{ route('projects.archives') }}" class="btn btn-outline-secondary">Archives</a>
-                </div>
+                <h1>Projets Archivés</h1>
+                <a href="{{ route('projects.index') }}" class="btn btn-secondary">← Retour aux projets</a>
             </div>
 
             @if($projects->isEmpty())
                 <div class="alert alert-info">
-                    Vous n'êtes membre d'aucun projet pour le moment.
+                    Aucun projet archivé.
                 </div>
             @else
                 <div class="row">
                     @foreach($projects as $project)
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">{{ $project->title }}</h5>
-                                    @php
-                                        $userRole = $project->members->where('id', auth()->id())->first()?->pivot->role;
-                                    @endphp
-                                    <span class="badge bg-{{ $userRole === 'lead' ? 'primary' : 'secondary' }}">
-                                        {{ $userRole === 'lead' ? 'Lead' : 'Developer' }}
-                                    </span>
+                                    <span class="badge bg-dark">Archivé</span>
                                 </div>
 
                                 <div class="card-body">
@@ -62,23 +52,31 @@
                                             {{ $project->done_tasks_count }} / {{ $project->tasks_count }} tâches terminées
                                         </small>
                                     </div>
+
+                                    <small class="text-muted">
+                                        Archivé le {{ $project->deleted_at->format('d/m/Y') }}
+                                    </small>
                                 </div>
 
                                 <div class="card-footer bg-transparent">
-                                    <a href="{{ route('projects.show', $project) }}" class="btn btn-sm btn-info">Voir</a>
-                                    <a href="{{ route('tasks.index', $project) }}" class="btn btn-sm btn-secondary">Tâches</a>
-
-                                    @can('update', $project)
-                                        <a href="{{ route('projects.edit', $project) }}" class="btn btn-sm btn-warning">Éditer</a>
-                                    @endcan
-
-                                    @can('delete', $project)
-                                        <form action="{{ route('projects.archive', $project) }}" method="POST" class="d-inline">
+                                    @can('restore', $project)
+                                        <form action="{{ route('projects.restore', $project) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-success"
+                                                    onclick="return confirm('Restaurer ce projet ?')">
+                                                Restaurer
+                                            </button>
+                                        </form>
+                                    @endcan
+
+                                    @can('forceDelete', $project)
+                                        <form action="{{ route('projects.destroy', $project) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Êtes-vous sûr de vouloir archiver ce projet ?')">
-                                                Archiver
+                                                    onclick="return confirm('Supprimer définitivement ce projet ? Cette action est irréversible !')">
+                                                Supprimer définitivement
                                             </button>
                                         </form>
                                     @endcan

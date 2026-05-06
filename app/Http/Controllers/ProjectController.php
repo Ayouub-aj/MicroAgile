@@ -92,6 +92,45 @@ class ProjectController extends Controller
     }
 
     /**
+ * Display archived projects.
+ */
+public function archives()
+{
+    $this->authorize('viewAny', Project::class);
+
+    // Get archived projects where user is a lead
+    $projects = Project::onlyTrashed()
+                    ->whereHas('members', fn($q) =>
+                        $q->where('user_id', auth()->id())
+                          ->where('role', 'lead')
+                    )
+                    ->withCount([
+                        'tasks',
+                        'tasks as done_tasks_count' => fn($q) => $q->where('status', 'done')
+                    ])
+                    ->with('members')
+                    ->get();
+
+    return view('projects.archives', compact('projects'));
+}
+
+    /**
+     * Restore an archived project.
+     */
+    public function restore($id)
+    {
+        $project = Project::onlyTrashed()->findOrFail($id);
+
+        $project->load('members');
+        $this->authorize('restore', $project);
+
+        $project->restore();
+
+        return redirect()->route('projects.index')
+                        ->with('success', 'Projet restauré avec succès.');
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Project $project)
