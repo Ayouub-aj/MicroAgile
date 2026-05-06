@@ -100,7 +100,7 @@ class TaskController extends Controller
         return redirect()->route('tasks.index', $task->project)
                         ->with('success', 'Tâche mise à jour avec succès');
     }
-
+    
     /**
      * Remove the specified resource from storage.
      */
