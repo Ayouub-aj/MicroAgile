@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 
 class ProjectController extends Controller
 {
@@ -79,21 +80,15 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
         $project->load('members');
         $this->authorize('update', $project);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'deadline' => 'nullable|date',
-        ]);
-
-        $project->update($validated);
+        $project->update($request->validated());
 
         return redirect()->route('projects.show', $project)
-                        ->with('success', 'Project updated successfully');
+                        ->with('success', 'Projet mis à jour avec succès');
     }
 
     /**
