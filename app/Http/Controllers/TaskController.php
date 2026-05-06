@@ -123,8 +123,8 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,done',
         ]);
 
-        $task->update($validated);
+        $task->update(['status' => $validated['status']]);
 
-        return back();
+        return back()->with('success', 'Statut de la tâche mis à jour avec succès');
     }
 }

@@ -60,16 +60,17 @@
                                         </td>
                                         <td>
                                             {{-- Status change form (for assigned developer) --}}
-                                            @if(auth()->id() === $task->user_id)
+                                            @can('updateStatus', $task)
                                                 <form action="{{ route('tasks.updateStatus', $task) }}" method="POST" class="d-inline">
                                                     @csrf
+                                                    @method('PATCH')
                                                     <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                                                        <option value="todo" {{ $task->status === 'todo' ? 'selected' : '' }}>To Do</option>
-                                                        <option value="in_progress" {{ $task->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                                                        <option value="done" {{ $task->status === 'done' ? 'selected' : '' }}>Done</option>
+                                                        <option value="todo" {{ $task->status === 'todo' ? 'selected' : '' }}>À faire</option>
+                                                        <option value="in_progress" {{ $task->status === 'in_progress' ? 'selected' : '' }}>En cours</option>
+                                                        <option value="done" {{ $task->status === 'done' ? 'selected' : '' }}>Terminé</option>
                                                     </select>
                                                 </form>
-                                            @endif
+                                            @endcan
 
                                             {{-- Edit/Delete for leads only --}}
                                             @can('update', $task)
