@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
     Route::get('projects-archives', [ProjectController::class, 'archives'])->name('projects.archives');
     Route::patch('projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
+    Route::post('projects/{project}/members', [ProjectController::class, 'addMember'])->name('projects.members.add');
+    Route::delete('projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('projects.members.remove');
 
     // Task routes (shallow nesting)
     Route::get('projects/{project}/tasks', [TaskController::class, 'index'])->name('tasks.index');

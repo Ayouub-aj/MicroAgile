@@ -7,6 +7,7 @@ use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Models\User;
 
 class ProjectController extends Controller
 {
@@ -128,6 +129,48 @@ public function archives()
 
         return redirect()->route('projects.index')
                         ->with('success', 'Projet restauré avec succès.');
+    }
+
+    /**
+ * Add a member to the project.
+ */
+public function addMember(Request $request, Project $project)
+{
+    $project->load('members');
+    $this->authorize('update', $project);
+
+    $validated = $request->validate([
+        'email' => 'required|email|exists:users,email',
+    ]);
+
+    $user = \App\Models\User::where('email', $validated['email'])->first();
+
+    // Check if user is already a member
+    if ($project->members()->where('user_id', $user->id)->exists()) {
+        return back()->withErrors(['email' => 'Cet utilisateur est déjà membre du projet.']);
+    }
+
+    $project->members()->attach($user->id, ['role' => 'developer']);
+
+    return back()->with('success', 'Membre ajouté avec succès.');
+}
+
+    /**
+     * Remove a member from the project.
+     */
+    public function removeMember(Project $project, \App\Models\User $user)
+    {
+        $project->load('members');
+        $this->authorize('update', $project);
+
+        // Prevent removing self
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['error' => 'Vous ne pouvez pas vous retirer vous-même du projet.']);
+        }
+
+        $project->members()->detach($user->id);
+
+        return back()->with('success', 'Membre retiré avec succès.');
     }
 
     /**
