@@ -109,9 +109,11 @@ class TaskController extends Controller
         $task->load(['project', 'project.members']);
         $this->authorize('delete', $task);
 
+        $projectId = $task->project_id;
         $task->delete();
 
-        return redirect()->route('tasks.index');
+        return redirect()->route('tasks.index', $projectId)
+                         ->with('success', 'Tâche supprimée avec succès');
     }
 
     public function updateStatus(Request $request, Task $task)
