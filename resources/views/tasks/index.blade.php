@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>Tasks for {{ $project->name }}</h4>
+                    <h4>Tasks for {{ $project->title }}</h4>
                     @can('create', [App\Models\Task::class, $project])
                         <a href="{{ route('tasks.create', $project) }}" class="btn btn-primary">New Task</a>
                     @endcan
