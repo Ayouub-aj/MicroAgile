@@ -51,6 +51,76 @@
                 </div>
             </div>
 
+            <!-- Tasks List Card -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Tâches du Projet</h5>
+                    @can('create', [App\Models\Task::class, $project])
+                        <a href="{{ route('tasks.create', $project) }}" class="btn btn-sm btn-primary">
+                            + Nouvelle Tâche
+                        </a>
+                    @endcan
+                </div>
+
+                <div class="card-body">
+                    @if($project->tasks->isEmpty())
+                        <p class="text-muted">Aucune tâche pour le moment.</p>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Statut</th>
+                                        <th>Priorité</th>
+                                        <th>Assigné à</th>
+                                        <th>Deadline</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($project->tasks as $task)
+                                        <tr>
+                                            <td>{{ $task->title }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $task->status_badge_color }}">
+                                                    {{ $task->status_label }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ $task->priority_badge_color }}">
+                                                    {{ ucfirst($task->priority) }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $task->assignedUser?->name ?? 'Non assigné' }}</td>
+                                            <td>
+                                                @if($task->deadline)
+                                                    {{ $task->deadline }}
+                                                    @if($task->deadline_status === 'overdue')
+                                                        <span class="text-danger">🔴</span>
+                                                    @elseif($task->deadline_status === 'urgent')
+                                                        <span class="text-warning">⚠️</span>
+                                                    @endif
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-info">Voir</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="card-footer bg-transparent">
+                    <a href="{{ route('tasks.index', $project) }}" class="btn btn-outline-primary">Voir toutes les tâches</a>
+                </div>
+            </div>
+
             <!-- Members Management Card -->
             <div class="card">
                 <div class="card-header">

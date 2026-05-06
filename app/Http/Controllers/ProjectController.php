@@ -61,7 +61,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load('members', 'tasks');
+        $project->load('members', 'tasks.assignedUser');
         $this->authorize('view', $project);
 
         return view('projects.show', compact('project'));
