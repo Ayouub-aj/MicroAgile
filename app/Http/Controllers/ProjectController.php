@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreProjectRequest;
 
 class ProjectController extends Controller
 {
@@ -40,23 +41,17 @@ class ProjectController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
         $this->authorize('create', Project::class);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'deadline' => 'nullable|date',
-        ]);
-
-        $project = Project::create($validated);
+        $project = Project::create($request->validated());
 
         // Attach the creator as a lead member
         $project->members()->attach(Auth::id(), ['role' => 'lead']);
 
         return redirect()->route('projects.index')
-                        ->with('success', 'Project created successfully');
+                        ->with('success', 'Projet créé avec succès');
     }
 
     /**
