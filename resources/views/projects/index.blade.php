@@ -70,11 +70,11 @@
                                     @endcan
 
                                     @can('delete', $project)
-                                        <form action="{{ route('projects.destroy', $project) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('projects.archive', $project) }}" method="POST" class="d-inline">
                                             @csrf
-                                            @method('DELETE')
+                                            @method('PATCH')
                                             <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Êtes-vous sûr ?')">
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir archiver ce projet ?')">
                                                 Archiver
                                             </button>
                                         </form>
