@@ -15,15 +15,16 @@ class ProjectController extends Controller
     {
         $this->authorize('viewAny', Project::class);
 
-        // Get projects where the user is a member
-        $projects = Project::with('members')
-                            ->whereHas('members', function ($query) {
-                                $query->where('user_id', Auth::id());
-                            })
+        // Get projects where user is a member, with task counts and members
+        $projects = Auth::user()->projects()
+                            ->withCount([
+                                    'tasks',
+                                    'tasks as done_tasks_count' => fn($q) => $q->where('status', 'done')
+                                    ])
+                            ->with('members')
                             ->get();
 
         return view('projects.index', compact('projects'));
-
     }
 
     /**
