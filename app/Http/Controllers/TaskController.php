@@ -84,7 +84,7 @@ class TaskController extends Controller
         // Get only developers from the project
         $members = $project->members()->where('role', 'developer')->get();
 
-        return view('tasks.edit', compact('task', 'members'));
+        return view('tasks.edit', compact('task', 'project', 'members'));
     }
 
     /**
@@ -97,9 +97,9 @@ class TaskController extends Controller
 
         $task->update($request->validated());
 
-        return redirect()->route('tasks.show', $task->project)
+        return redirect()->route('tasks.index', $task->project)
                         ->with('success', 'Tâche mise à jour avec succès');
-}
+    }
 
     /**
      * Remove the specified resource from storage.
