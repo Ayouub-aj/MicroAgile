@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Project;
+use Illuminate\Support\Facades\Auth;
+
+class ProjectController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $this->authorize('viewAny', Project::class);
+
+        // Get projects where the user is a member
+        $projects = Project::with('members')
+                            ->whereHas('members', function ($query) {
+                                $query->where('user_id', Auth::id());
+                            })
+                            ->get();
+
+        return view('projects.index', compact('projects'));
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $this->authorize('create', Project::class);
+
+        return view('projects.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $this->authorize('create', Project::class);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'deadline' => 'nullable|date',
+        ]);
+
+        $project = Project::create($validated);
+
+        // Attach the creator as a lead member
+        $project->members()->attach(Auth::id(), ['role' => 'lead']);
+
+        return redirect()->route('projects.index')
+                        ->with('success', 'Project created successfully');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Project $project)
+    {
+        $project->load('members', 'tasks');
+        $this->authorize('view', $project);
+
+        return view('projects.show', compact('project'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Project $project)
+    {
+        $project->load('members');
+        $this->authorize('update', $project);
+
+        return view('projects.edit', compact('project'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Project $project)
+    {
+        $project->load('members');
+        $this->authorize('update', $project);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'deadline' => 'nullable|date',
+        ]);
+
+        $project->update($validated);
+
+        return redirect()->route('projects.show', $project)
+                        ->with('success', 'Project updated successfully');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Project $project)
+    {
+        $project->load('members');
+        $this->authorize('delete', $project);
+
+        $project->delete();
+
+        return redirect()->route('projects.index')
+                        ->with('success', 'Project deleted successfully');
+    }
+}
