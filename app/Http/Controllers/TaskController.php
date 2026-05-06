@@ -79,7 +79,12 @@ class TaskController extends Controller
         $task->load(['project', 'project.members']);
         $this->authorize('update', $task);
 
-        return view('tasks.edit', compact('task'));
+        $project = $task->project;
+
+        // Get only developers from the project
+        $members = $project->members()->where('role', 'developer')->get();
+
+        return view('tasks.edit', compact('task', 'members'));
     }
 
     /**
@@ -92,7 +97,7 @@ class TaskController extends Controller
 
         $task->update($request->validated());
 
-        return redirect()->route('tasks.show', $task)
+        return redirect()->route('tasks.show', $task->project)
                         ->with('success', 'Tâche mise à jour avec succès');
 }
 
