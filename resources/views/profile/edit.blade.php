@@ -1,28 +1,48 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
+        <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-user-circle mr-2 text-blue-600"></i>
+            Mon Profil
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
+    <div class="space-y-6">
+        <!-- Profile Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="border-b border-gray-200 px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-id-card mr-2 text-blue-600"></i>
+                    Informations du profil
+                </h3>
             </div>
-
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
+            <div class="p-6">
+                @include('profile.partials.update-profile-information-form')
             </div>
+        </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
+        <!-- Update Password -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="border-b border-gray-200 px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-key mr-2 text-green-600"></i>
+                    Modifier le mot de passe
+                </h3>
+            </div>
+            <div class="p-6">
+                @include('profile.partials.update-password-form')
+            </div>
+        </div>
+
+        <!-- Delete Account -->
+        <div class="bg-white rounded-xl shadow-sm border border-red-200">
+            <div class="border-b border-red-200 px-6 py-4 bg-gradient-to-r from-red-50 to-pink-50">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>
+                    Supprimer le compte
+                </h3>
+            </div>
+            <div class="p-6">
+                @include('profile.partials.delete-user-form')
             </div>
         </div>
     </div>
