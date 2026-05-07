@@ -3,26 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 
 class Project extends Model
 {
-    use SoftDeletes; 
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'title',
-        'description',
-        'deadline',
-    ];
-
-    // ─── Relationships ────────────────────────────────────────────
+    protected $fillable = ['title', 'description', 'deadline'];
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
+        return $this->belongsToMany(User::class, 'project_user')
                     ->withPivot('role')
                     ->withTimestamps();
     }
@@ -32,23 +27,17 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
-    // ─── Mutator ──────────────────────────────────────────────────
-
-    //autocapitalize the title when saving
-    //e.g. "test project" → "Test project"
     public function setTitleAttribute(string $value): void
     {
         $this->attributes['title'] = ucfirst($value);
     }
 
-    // ─── Scope ────────────────────────────────────────────────────
-
-    // tasks with deadline within 48h that aren't done yet 
-    public function scopeUrgent(Builder $query): Builder
+    public function scopeUrgent(Builder $query)
     {
         return $query->whereHas('tasks', function ($q) {
-            $q->where('status', '!=', 'done')
-              ->where('deadline', '<=', now()->addHours(48));
+            $q->where('status', 'pending')
+                ->where('deadline', '<=', now()->addHours(48))
+                ->where('status', '!=', 'done');
         });
     }
 }

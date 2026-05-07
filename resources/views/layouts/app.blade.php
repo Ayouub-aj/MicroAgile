@@ -9,28 +9,61 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+            .sidebar-link {
+                transition: all 0.3s ease;
+            }
+            .sidebar-link:hover {
+                background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+                border-left: 3px solid #3B82F6;
+            }
+            .sidebar-link.active {
+                background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
+                border-left: 3px solid #3B82F6;
+                color: #3B82F6;
+            }
+        </style>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+    <body class="antialiased bg-gray-50">
+        <div class="flex h-screen overflow-hidden">
+            <!-- Sidebar -->
+            @include('layouts.sidebar')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Top Navigation -->
+                @include('layouts.topnav')
+
+                <!-- Page Content -->
+                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+                    <!-- Page Heading -->
+                    @isset($header)
+                        <header class="bg-white shadow-sm border-b border-gray-200">
+                            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                                {{ $header }}
+                            </div>
+                        </header>
+                    @endisset
+
+                    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        {{ $slot }}
                     </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+                </main>
+            </div>
         </div>
+
+        <!-- Alpine.js for interactivity -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     </body>
 </html>
