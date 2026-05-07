@@ -146,6 +146,21 @@ public function archives()
     }
 
     /**
+     * Permanently delete an archived project.
+     */
+    public function forceDelete($id)
+    {
+        $project = Project::onlyTrashed()->findOrFail($id);
+
+        $this->authorize('forceDelete', $project);
+
+        $project->forceDelete();
+
+        return redirect()->route('projects.archives')
+                        ->with('success', 'Projet supprimé définitivement.');
+    }
+
+    /**
  * Add a member to the project.
  */
 public function addMember(Request $request, Project $project)

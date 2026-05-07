@@ -108,11 +108,11 @@
                         @endcan
 
                         @can('forceDelete', $project)
-                            <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline">
+                            <form action="{{ route('projects.force-delete', $project) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                        onclick="return confirm('Supprimer définitivement ce projet ? Cette action est irréversible !')"
+                                        onclick="return confirm('Supprimer définitivement ce projet ? Cette action est irréversible !') && confirm('Êtes-vous absolument sûr ? Toutes les données seront perdues !')"
                                         class="inline-flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition">
                                     <i class="fas fa-trash mr-2"></i>
                                     Supprimer
