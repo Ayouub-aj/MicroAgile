@@ -39,10 +39,7 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $project->members()
-                    ->where('user_id', $user->id)
-                    ->where('role', 'lead')
-                    ->exists();
+        return $this->isLead($user, $project);
     }
 
     /**
@@ -50,10 +47,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $project->members()
-                    ->where('user_id', $user->id)
-                    ->where('role', 'lead')
-                    ->exists();
+        return $this->isLead($user, $project);
     }
 
     /**
@@ -61,16 +55,21 @@ class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
-        return $project->members()
-                    ->where('user_id', $user->id)
-                    ->where('role', 'lead')
-                    ->exists();
+        return $this->isLead($user, $project);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, Project $project): bool
+    {
+        return $this->isLead($user, $project);
+    }
+
+    /**
+     * Check if the authenticated user is lead on the project.
+     */
+    private function isLead(User $user, Project $project): bool
     {
         return $project->members()
                     ->where('user_id', $user->id)

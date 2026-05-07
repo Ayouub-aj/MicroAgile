@@ -98,7 +98,7 @@ class ProjectController extends Controller
     public function archive(Project $project)
     {
         $project->load('members');
-        $this->authorize('update', $project);
+        $this->authorize('delete', $project);
 
         $project->delete();
 
@@ -107,9 +107,9 @@ class ProjectController extends Controller
     }
 
     /**
- * Display archived projects.
- */
-public function archives()
+     * Display archived projects.
+     */
+    public function archives()
 {
     $this->authorize('viewAny', Project::class);
 
