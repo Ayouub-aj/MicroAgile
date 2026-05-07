@@ -1,101 +1,131 @@
 <x-app-layout>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Modifier la tâche</h4>
-                </div>
+    <x-slot name="header">
+        <div class="flex items-center">
+            <a href="{{ route('tasks.index', $task->project) }}" class="text-gray-600 hover:text-gray-900 mr-4">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h2 class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-edit mr-2 text-blue-600"></i>
+                Modifier la tâche
+            </h2>
+        </div>
+    </x-slot>
 
-                <div class="card-body">
-                    <form action="{{ route('tasks.update', $task) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="p-8">
+                <form action="{{ route('tasks.update', $task) }}" method="POST" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
-                        {{-- Title --}}
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Titre <span class="text-danger">*</span></label>
-                            <input type="text"
-                                   class="form-control @error('title') is-invalid @enderror"
-                                   id="title"
-                                   name="title"
-                                   value="{{ old('title', $task->title) }}"
-                                   required>
-                            @error('title')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- Title --}}
+                    <div>
+                        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Titre <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text"
+                               id="title"
+                               name="title"
+                               value="{{ old('title', $task->title) }}"
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('title') border-red-500 @enderror">
+                        @error('title')
+                            <p class="mt-2 text-sm text-red-600">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-                        {{-- Description --}}
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror"
-                                      id="description"
-                                      name="description"
-                                      rows="4">{{ old('description', $task->description) }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- Description --}}
+                    <div>
+                        <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea id="description"
+                                  name="description"
+                                  rows="5"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('description') border-red-500 @enderror">{{ old('description', $task->description) }}</textarea>
+                        @error('description')
+                            <p class="mt-2 text-sm text-red-600">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-                        {{-- Priority --}}
-                        <div class="mb-3">
-                            <label for="priority" class="form-label">Priorité <span class="text-danger">*</span></label>
-                            <select class="form-select @error('priority') is-invalid @enderror"
-                                    id="priority"
-                                    name="priority"
-                                    required>
-                                <option value="">-- Choisir une priorité --</option>
-                                <option value="low" {{ old('priority', $task->priority) == 'low' ? 'selected' : '' }}>Basse</option>
-                                <option value="medium" {{ old('priority', $task->priority) == 'medium' ? 'selected' : '' }}>Moyenne</option>
-                                <option value="high" {{ old('priority', $task->priority) == 'high' ? 'selected' : '' }}>Haute</option>
-                            </select>
-                            @error('priority')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- Priority --}}
+                    <div>
+                        <label for="priority" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Priorité <span class="text-red-600">*</span>
+                        </label>
+                        <select id="priority"
+                                name="priority"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('priority') border-red-500 @enderror">
+                            <option value="">-- Choisir une priorité --</option>
+                            <option value="low" {{ old('priority', $task->priority) == 'low' ? 'selected' : '' }}>Basse</option>
+                            <option value="medium" {{ old('priority', $task->priority) == 'medium' ? 'selected' : '' }}>Moyenne</option>
+                            <option value="high" {{ old('priority', $task->priority) == 'high' ? 'selected' : '' }}>Haute</option>
+                        </select>
+                        @error('priority')
+                            <p class="mt-2 text-sm text-red-600">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-                        {{-- Assigned Developer --}}
-                        <div class="mb-3">
-                            <label for="user_id" class="form-label">Assigner à</label>
-                            <select class="form-select @error('user_id') is-invalid @enderror"
-                                    id="user_id"
-                                    name="user_id">
-                                <option value="">-- Non assigné --</option>
-                                @foreach($members as $member)
-                                    <option value="{{ $member->id }}" {{ old('user_id', $task->user_id) == $member->id ? 'selected' : '' }}>
-                                        {{ $member->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('user_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- Assigned Developer --}}
+                    <div>
+                        <label for="user_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Assigner à
+                        </label>
+                        <select id="user_id"
+                                name="user_id"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('user_id') border-red-500 @enderror">
+                            <option value="">-- Non assigné --</option>
+                            @foreach($members as $member)
+                                <option value="{{ $member->id }}" {{ old('user_id', $task->user_id) == $member->id ? 'selected' : '' }}>
+                                    {{ $member->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('user_id')
+                            <p class="mt-2 text-sm text-red-600">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-                        {{-- Deadline --}}
-                        <div class="mb-3">
-                            <label for="deadline" class="form-label">Date limite</label>
-                            <input type="date"
-                                   class="form-control @error('deadline') is-invalid @enderror"
-                                   id="deadline"
-                                   name="deadline"
-                                   value="{{ old('deadline', $task->deadline) }}"
-                                   min="{{ date('Y-m-d') }}">
-                            @error('deadline')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- Deadline --}}
+                    <div>
+                        <label for="deadline" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Date limite
+                        </label>
+                        <input type="date"
+                               id="deadline"
+                               name="deadline"
+                               value="{{ old('deadline', $task->deadline) }}"
+                               min="{{ date('Y-m-d') }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('deadline') border-red-500 @enderror">
+                        @error('deadline')
+                            <p class="mt-2 text-sm text-red-600">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-                        {{-- Buttons --}}
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('tasks.index', $project) }}" class="btn btn-secondary">Annuler</a>
-                            <button type="submit" class="btn btn-primary">Mettre à jour</button>
-                        </div>
-                    </form>
-                </div>
+                    {{-- Buttons --}}
+                    <div class="flex items-center justify-between pt-4">
+                        <a href="{{ route('tasks.index', $project) }}"
+                           class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </a>
+                        <button type="submit"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
+                            <i class="fas fa-save mr-2"></i>Mettre à jour
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 </x-app-layout>

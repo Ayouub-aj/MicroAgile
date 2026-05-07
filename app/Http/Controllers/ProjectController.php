@@ -93,6 +93,20 @@ class ProjectController extends Controller
     }
 
     /**
+     * Archive a single project (soft delete).
+     */
+    public function archive(Project $project)
+    {
+        $project->load('members');
+        $this->authorize('update', $project);
+
+        $project->delete();
+
+        return redirect()->route('projects.index')
+                        ->with('success', 'Projet archivé avec succès.');
+    }
+
+    /**
  * Display archived projects.
  */
 public function archives()
