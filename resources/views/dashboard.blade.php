@@ -23,11 +23,22 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             @php
+                // Get all projects the user is a member of
                 $totalProjects = Auth::user()->projects()->count();
-                $totalTasks = Auth::user()->tasks()->count();
-                $completedTasks = Auth::user()->tasks()->where('status', 'done')->count();
-                $urgentTasks = Auth::user()->tasks()->where('status', '!=', 'done')
-                    ->where('deadline', '<=', now()->addHours(48))->count();
+
+                // Get all project IDs the user is a member of
+                $projectIds = Auth::user()->projects()->pluck('id');
+
+                // Count total tasks in user's projects
+                $totalTasks = \App\Models\Task::whereIn('project_id', $projectIds)->count();
+
+                // Count completed tasks in user's projects
+                $completedTasks = \App\Models\Task::whereIn('project_id', $projectIds)
+                    ->where('status', 'done')->count();
+
+                // Count urgent tasks in user's projects (not done + deadline within 48 hours)
+                $urgentTasks = \App\Models\Task::whereIn('project_id', $projectIds)
+                    ->urgent()->count();
             @endphp
 
             <!-- Total Projects -->
