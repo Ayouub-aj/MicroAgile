@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Task extends Model
 {
+    // These are the fields that can be saved to the database
     protected $fillable = [
         'title',
         'description',
@@ -18,23 +19,34 @@ class Task extends Model
         'user_id',
     ];
 
-    // ─── Relationships ────────────────────────────────────────────
+    // ====== RELATIONSHIPS ======
+    // These methods define connections to other tables
 
+    /**
+     * Get the project this task belongs to
+     * Example: $task->project->title
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
+    /**
+     * Get the user assigned to this task
+     * Example: $task->assignedUser->name
+     */
     public function assignedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // ─── Accessors ────────────────────────────────────────────────
+    // ====== ACCESSORS ======
+    // These are virtual properties that compute values on the fly
 
     /**
-     * Human-readable status label in French
-     * Usage: $task->status_label
+     * Convert status code to human-readable French text
+     * Example: 'in_progress' becomes 'En cours'
+     * Access it like: $task->status_label
      */
     public function getStatusLabelAttribute(): string
     {
@@ -47,8 +59,9 @@ class Task extends Model
     }
 
     /**
-     * Urgency level based on deadline
-     * Usage: $task->deadline_status
+     * Check if the task deadline is coming up soon
+     * Returns: 'ok', 'urgent' (< 48h), or 'overdue' (past deadline)
+     * Access it like: $task->deadline_status
      */
     public function getDeadlineStatusAttribute(): string
     {
@@ -69,41 +82,47 @@ class Task extends Model
         return 'ok';
     }
 
-    // ─── Scope ────────────────────────────────────────────────────
+    /**
+     * Get Bootstrap color class for the status badge
+     * Example: 'todo' task shows as gray, 'done' shows as green
+     * Access it like: $task->status_badge_color
+     */
+    public function getStatusBadgeColorAttribute(): string
+    {
+        return match($this->status) {
+            'todo'        => 'secondary',
+            'in_progress' => 'primary',
+            'done'        => 'success',
+            default       => 'secondary',
+        };
+    }
 
     /**
-     * Filter tasks that are urgent (not done + deadline within 48h)
-     * Usage: Task::urgent()->get() or $project->tasks()->urgent()->get()
+     * Get Bootstrap color class for the priority badge
+     * Example: high priority shows red, low shows blue
+     * Access it like: $task->priority_badge_color
+     */
+    public function getPriorityBadgeColorAttribute(): string
+    {
+        return match($this->priority) {
+            'low'    => 'info',
+            'medium' => 'warning',
+            'high'   => 'danger',
+            default  => 'secondary',
+        };
+    }
+
+    // ====== QUERY SCOPES ======
+    // These help filter tasks quickly
+
+    /**
+     * Find tasks that need attention (urgent deadline, not done)
+     * Example: Task::urgent()->get()
+     * Or: $project->tasks()->urgent()->get()
      */
     public function scopeUrgent(Builder $query): Builder
     {
         return $query->where('status', '!=', 'done')
                      ->where('deadline', '<=', now()->addHours(48));
-    }
-
-    /**
-     * Badge color for status
-     */
-    public function getStatusBadgeColorAttribute(): string
-    {
-        return match($this->status) {
-            'todo' => 'secondary',
-            'in_progress' => 'primary',
-            'done' => 'success',
-            default => 'secondary',
-        };
-    }
-
-    /**
-     * Badge color for priority
-     */
-    public function getPriorityBadgeColorAttribute(): string
-    {
-        return match($this->priority) {
-            'low' => 'info',
-            'medium' => 'warning',
-            'high' => 'danger',
-            default => 'secondary',
-        };
     }
 }
