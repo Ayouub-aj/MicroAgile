@@ -445,3 +445,29 @@ $user->projects()->where('project_id', $project->id)->wherePivot('role', 'lead')
 ## 📄 Licence
 
 Distribué sous licence Unlicensed — usage interne uniquement.
+
+
+## 🧪 Tests
+
+Pour exécuter la suite de tests Laravel dans cet environnement Docker, utilisez l'une des commandes suivantes :
+
+- Exécuter tous les tests :
+  ```bash
+  ./vendor/bin/sail test
+  ```
+- Exécuter uniquement les tests de fonctionnalité CRUD et N+1 :
+  ```bash
+  ./vendor/bin/sail test --filter 'ProjectCrudTest|TaskCrudTest|NPlusOneTest'
+  ```
+- Exécuter un test spécifique :
+  ```bash
+  ./vendor/bin/sail test --filter ProjectCrudTest
+  ```
+
+Si vous préférez exécuter PHPUnit directement dans le conteneur :
+
+```bash
+docker compose exec laravel.test php artisan test
+```
+
+> ⚠️ Ne lancez pas `./vendor/bin/phpunit` directement depuis l'hôte si le conteneur Docker n'est pas actif, car la base de données `mysql` est configurée pour fonctionner dans le réseau Docker.
