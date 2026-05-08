@@ -10,4 +10,8 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        reportCompressedSize: false,  // Skip gzip calculation (saves ~1-2s)
+        chunkSizeWarningLimit: 1000,
+    },
 });
