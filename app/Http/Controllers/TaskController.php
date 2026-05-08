@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\TaskResource;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 
@@ -69,6 +70,16 @@ class TaskController extends Controller
         $this->authorize('view', $task);
 
         return view('tasks.show', compact('task'));
+    }
+
+    /**
+     * Return project tasks as JSON for the public API.
+     */
+    public function apiIndex(Project $project)
+    {
+        $tasks = $project->tasks()->with('assignedUser')->get();
+
+        return TaskResource::collection($tasks);
     }
 
     /**
