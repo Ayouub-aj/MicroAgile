@@ -64,7 +64,13 @@ class ProjectController extends Controller
         $project->load('members', 'tasks.assignedUser');
         $this->authorize('view', $project);
 
-        return view('projects.show', compact('project'));
+        // Get users who are not already members of this project
+        $memberIds = $project->members->pluck('id');
+        $availableUsers = \App\Models\User::whereNotIn('id', $memberIds)
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+
+        return view('projects.show', compact('project', 'availableUsers'));
     }
 
     /**
@@ -146,6 +152,21 @@ class ProjectController extends Controller
     }
 
     /**
+     * Permanently delete an archived project.
+     */
+    public function forceDelete($id)
+    {
+        $project = Project::onlyTrashed()->findOrFail($id);
+
+        $this->authorize('forceDelete', $project);
+
+        $project->forceDelete();
+
+        return redirect()->route('projects.archives')
+                        ->with('success', 'Projet supprimé définitivement.');
+    }
+
+    /**
  * Add a member to the project.
  */
 public function addMember(Request $request, Project $project)
@@ -154,14 +175,14 @@ public function addMember(Request $request, Project $project)
     $this->authorize('update', $project);
 
     $validated = $request->validate([
-        'email' => 'required|email|exists:users,email',
+        'user_id' => 'required|exists:users,id',
     ]);
 
-    $user = \App\Models\User::where('email', $validated['email'])->first();
+    $user = \App\Models\User::findOrFail($validated['user_id']);
 
     // Check if user is already a member
     if ($project->members()->where('user_id', $user->id)->exists()) {
-        return back()->withErrors(['email' => 'Cet utilisateur est déjà membre du projet.']);
+        return back()->withErrors(['user_id' => 'Cet utilisateur est déjà membre du projet.']);
     }
 
     $project->members()->attach($user->id, ['role' => 'developer']);

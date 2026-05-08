@@ -23,11 +23,22 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             @php
+                // Get all projects the user is a member of
                 $totalProjects = Auth::user()->projects()->count();
-                $totalTasks = Auth::user()->tasks()->count();
-                $completedTasks = Auth::user()->tasks()->where('status', 'done')->count();
-                $urgentTasks = Auth::user()->tasks()->where('status', '!=', 'done')
-                    ->where('deadline', '<=', now()->addHours(48))->count();
+
+                // Get all project IDs the user is a member of
+                $projectIds = Auth::user()->projects()->pluck('id');
+
+                // Count total tasks in user's projects
+                $totalTasks = \App\Models\Task::whereIn('project_id', $projectIds)->count();
+
+                // Count completed tasks in user's projects
+                $completedTasks = \App\Models\Task::whereIn('project_id', $projectIds)
+                    ->where('status', 'done')->count();
+
+                // Count urgent tasks in user's projects (not done + deadline within 48 hours)
+                $urgentTasks = \App\Models\Task::whereIn('project_id', $projectIds)
+                    ->urgent()->count();
             @endphp
 
             <!-- Total Projects -->
@@ -85,7 +96,7 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <a href="{{ route('projects.index') }}" 
+            <a href="{{ route('projects.index') }}"
                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-blue-300 transition group">
                 <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition">
@@ -98,7 +109,7 @@
                 </div>
             </a>
 
-            <a href="{{ route('projects.create') }}" 
+            <a href="{{ route('projects.create') }}"
                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-green-300 transition group">
                 <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition">
@@ -111,7 +122,7 @@
                 </div>
             </a>
 
-            <a href="{{ route('profile.edit') }}" 
+            <a href="{{ route('profile.edit') }}"
                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-purple-300 transition group">
                 <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition">
@@ -128,7 +139,11 @@
         <!-- Recent Projects -->
         @php
             $recentProjects = Auth::user()->projects()
-                ->withCount(['tasks', 'tasks as done_tasks_count' => fn($q) => $q->where('status', 'done')])
+                ->withCount([
+                    'tasks',
+                    'tasks as done_tasks_count' => fn($q) => $q->where('status', 'done'),
+                    'tasks as urgent_tasks_count' => fn($q) => $q->urgent()
+                ])
                 ->latest()
                 ->take(3)
                 ->get();
@@ -147,12 +162,20 @@
                         @foreach($recentProjects as $project)
                             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
                                 <div class="flex-1">
-                                    <h4 class="font-semibold text-gray-800">{{ $project->title }}</h4>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="font-semibold text-gray-800">{{ $project->title }}</h4>
+                                        @if($project->urgent_tasks_count > 0)
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-600 flex items-center gap-1">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                {{ $project->urgent_tasks_count }} urgente{{ $project->urgent_tasks_count > 1 ? 's' : '' }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     <p class="text-sm text-gray-500 mt-1">
                                         {{ $project->done_tasks_count }} / {{ $project->tasks_count }} tâches terminées
                                     </p>
                                 </div>
-                                <a href="{{ route('projects.show', $project) }}" 
+                                <a href="{{ route('projects.show', $project) }}"
                                    class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">
                                     Voir
                                 </a>
