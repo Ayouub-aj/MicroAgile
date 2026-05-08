@@ -173,9 +173,9 @@
                                         <form action="{{ route('projects.destroy', $project) }}" method="POST" class="w-full">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit"
+                                            <button type="button"
                                                     class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition text-left"
-                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.')">
+                                                    onclick="confirmDelete(this.closest('form'), 'Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.')">
                                                 <i class="fas fa-trash w-5 mr-2"></i>
                                                 Supprimer
                                             </button>

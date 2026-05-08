@@ -98,8 +98,8 @@
                             <form action="{{ route('projects.restore', $project) }}" method="POST" class="inline">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit"
-                                        onclick="return confirm('Restaurer ce projet ?')"
+                                <button type="button"
+                                        onclick="confirmDelete(this.closest('form'), 'Restaurer ce projet ?')"
                                         class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition">
                                     <i class="fas fa-undo mr-2"></i>
                                     Restaurer
@@ -111,8 +111,8 @@
                             <form action="{{ route('projects.force-delete', $project) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
-                                        onclick="return confirm('Supprimer définitivement ce projet ? Cette action est irréversible !') && confirm('Êtes-vous absolument sûr ? Toutes les données seront perdues !')"
+                                <button type="button"
+                                        onclick="confirmDelete(this.closest('form'), 'Supprimer définitivement ce projet ? Toutes les données seront perdues. Cette action est irréversible !', true)"
                                         class="inline-flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition">
                                     <i class="fas fa-trash mr-2"></i>
                                     Supprimer

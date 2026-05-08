@@ -150,9 +150,9 @@
                                                 <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit"
+                                                    <button type="button"
                                                             class="px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors shadow-sm font-medium"
-                                                            onclick="return confirm('Supprimer cette tâche ?')">
+                                                            onclick="confirmDelete(this.closest('form'), 'Supprimer cette tâche ?')">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

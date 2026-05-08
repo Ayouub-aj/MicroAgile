@@ -25,9 +25,9 @@
                     <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit"
+                        <button type="button"
                                 class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium shadow-sm"
-                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.')">
+                                onclick="confirmDelete(this.closest('form'), 'Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.')">
                             <i class="fas fa-trash mr-2"></i>Supprimer
                         </button>
                     </form>
@@ -201,8 +201,8 @@
                                                     <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit"
-                                                                onclick="return confirm('Supprimer cette tâche ?')"
+                                                        <button type="button"
+                                                                onclick="confirmDelete(this.closest('form'), 'Supprimer cette tâche ?')"
                                                                 class="px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors shadow-sm font-medium">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
@@ -265,9 +265,9 @@
                                                     <form action="{{ route('projects.members.remove', [$project, $member]) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit"
+                                                        <button type="button"
                                                                 class="px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition"
-                                                                onclick="return confirm('Retirer {{ $member->name }} du projet ?')">
+                                                                onclick="confirmDelete(this.closest('form'), 'Retirer {{ $member->name }} du projet ?')">
                                                             <i class="fas fa-user-minus mr-1"></i>Retirer
                                                         </button>
                                                     </form>
