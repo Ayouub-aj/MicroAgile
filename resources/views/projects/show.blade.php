@@ -286,25 +286,94 @@
                     @can('update', $project)
                         <div class="pt-8 border-t border-gray-200">
                             <h4 class="text-md font-semibold text-gray-700 mb-4">Ajouter un Membre</h4>
-                            <form action="{{ route('projects.members.add', $project) }}" method="POST" class="flex gap-3">
-                                @csrf
-                                <div class="flex-1">
-                                    <input type="email"
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('email') border-red-500 @enderror"
-                                           name="email"
-                                           placeholder="Email de l'utilisateur"
-                                           required>
-                                    @error('email')
-                                        <p class="mt-2 text-sm text-red-600">
-                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-                                <button type="submit"
-                                        class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-sm">
-                                    <i class="fas fa-user-plus mr-2"></i>Ajouter
-                                </button>
-                            </form>
+
+                            @if($availableUsers->isEmpty())
+                                <p class="text-gray-500 text-sm italic">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Tous les utilisateurs sont déjà membres de ce projet.
+                                </p>
+                            @else
+                                <form action="{{ route('projects.members.add', $project) }}" method="POST"
+                                      x-data="{
+                                          search: '',
+                                          selectedUserId: '',
+                                          selectedUserName: '',
+                                          showDropdown: false,
+                                          users: {{ $availableUsers->toJson() }},
+                                          get filteredUsers() {
+                                              if (this.search === '') return this.users;
+                                              return this.users.filter(user =>
+                                                  user.name.toLowerCase().includes(this.search.toLowerCase()) ||
+                                                  user.email.toLowerCase().includes(this.search.toLowerCase())
+                                              );
+                                          },
+                                          selectUser(user) {
+                                              this.selectedUserId = user.id;
+                                              this.selectedUserName = user.name;
+                                              this.search = user.name + ' (' + user.email + ')';
+                                              this.showDropdown = false;
+                                          },
+                                          reset() {
+                                              this.search = '';
+                                              this.selectedUserId = '';
+                                              this.selectedUserName = '';
+                                              this.showDropdown = false;
+                                          }
+                                      }"
+                                      class="flex gap-3"
+                                      @click.away="showDropdown = false">
+                                    @csrf
+
+                                    <div class="flex-1 relative">
+                                        <!-- Hidden input for user_id -->
+                                        <input type="hidden" name="user_id" x-model="selectedUserId">
+
+                                        <!-- Search Input -->
+                                        <input type="text"
+                                               x-model="search"
+                                               @focus="showDropdown = true"
+                                               @input="showDropdown = true; selectedUserId = ''"
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('user_id') border-red-500 @enderror"
+                                               placeholder="Rechercher par nom ou email..."
+                                               autocomplete="off">
+
+                                        <!-- Dropdown List -->
+                                        <div x-show="showDropdown && filteredUsers.length > 0"
+                                             x-transition
+                                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                            <template x-for="user in filteredUsers" :key="user.id">
+                                                <div @click="selectUser(user)"
+                                                     class="px-4 py-3 hover:bg-blue-50 cursor-pointer transition border-b border-gray-100 last:border-0">
+                                                    <div class="font-medium text-gray-800" x-text="user.name"></div>
+                                                    <div class="text-sm text-gray-500" x-text="user.email"></div>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <!-- No results message -->
+                                        <div x-show="showDropdown && search !== '' && filteredUsers.length === 0"
+                                             x-transition
+                                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+                                            <p class="text-gray-500 text-sm">
+                                                <i class="fas fa-search mr-2"></i>Aucun utilisateur trouvé
+                                            </p>
+                                        </div>
+
+                                        @error('user_id')
+                                            <p class="mt-2 text-sm text-red-600">
+                                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit"
+                                            :disabled="!selectedUserId"
+                                            :class="selectedUserId ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'"
+                                            class="px-6 py-3 text-white rounded-lg transition font-medium shadow-sm">
+                                        <i class="fas fa-user-plus mr-2"></i>Ajouter
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     @endcan
                 </div>
